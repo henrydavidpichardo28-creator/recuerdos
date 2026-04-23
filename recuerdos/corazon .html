@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuerdos</title>
+    <style>
+        body { margin: 0; background: #000; overflow: hidden; font-family: 'Arial', sans-serif; cursor: pointer; }
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; color: #00d4ff; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 100; text-align: center;
+        }
+        #msg { 
+            position: absolute; width: 100%; text-align: center; 
+            top: 15%; color: #00d4ff; font-size: 45px; font-weight: bold;
+            display: none; text-shadow: 0 0 20px #00d4ff; letter-spacing: 5px;
+        }
+        .icon { font-size: 50px; margin-bottom: 20px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+    </style>
+</head>
+<body onclick="iniciar()">
+
+    <div id="overlay">
+        <div class="icon">💙</div>
+        <p>Toca la pantalla para ver nuestros recuerdos...</p>
+    </div>
+
+    <div id="msg">RECUERDOS</div>
+    <canvas id="h"></canvas>
+
+    <audio id="m" loop><source src="musica.mp3" type="audio/mpeg"></audio>
+
+    <script>
+        const audio = document.getElementById('m');
+        function iniciar() {
+            audio.play().catch(e => console.log("Error de audio:", e));
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('msg').style.display = 'block';
+            
+            const c = document.getElementById('h'), x = c.getContext('2d');
+            c.width = window.innerWidth; c.height = window.innerHeight;
+            
+            const pts = []; 
+            for(let i=0; i<600; i++) pts.push({t: Math.random()*6.28, v: Math.random()*0.02+0.01});
+
+            function getP(t) { 
+                return {
+                    x: 16 * Math.pow(Math.sin(t), 3) * 13, 
+                    y: -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)) * 13
+                }; 
+            }
+
+            function animar() {
+                x.fillStyle = 'rgba(0,0,0,0.1)'; 
+                x.fillRect(0,0,c.width,c.height);
+                pts.forEach(p => { 
+                    p.t += p.v; 
+                    const o = getP(p.t); 
+                    x.fillStyle = '#00d4ff'; 
+                    x.beginPath(); 
+                    x.arc(c.width/2 + o.x, c.height/2 + o.y, 1.5, 0, 7); 
+                    x.fill(); 
+                });
+                requestAnimationFrame(animar);
+            }
+            animar();
+        }
+    </script>
+</body>
+</html>
